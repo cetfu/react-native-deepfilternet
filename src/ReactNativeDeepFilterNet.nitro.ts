@@ -25,6 +25,11 @@ export interface ReactNativeDeepFilterNet extends HybridObject<{
   setAttenLim(limDb: number): void;
 
   /**
+   * Save a binary ArrayBuffer (e.g. downloaded model) to a local file path.
+   */
+  writeBufferToFile(path: string, buffer: ArrayBuffer): boolean;
+
+  /**
    * Release model and free native memory.
    */
   release(): void;

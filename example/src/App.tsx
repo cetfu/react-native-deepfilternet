@@ -17,7 +17,10 @@ import {
   errorCodes,
 } from '@react-native-documents/picker';
 import { AudioContext } from 'react-native-audio-api';
-import { ReactNativeDeepFilterNet } from 'react-native-deep-filter-net';
+import {
+  ReactNativeDeepFilterNet,
+  loadDefaultModel,
+} from 'react-native-deep-filter-net';
 
 function parseWavOrPcmToFloat32(arrayBuffer: ArrayBuffer): {
   samples: Float32Array;
@@ -106,9 +109,6 @@ function parseWavOrPcmToFloat32(arrayBuffer: ArrayBuffer): {
 }
 
 export default function App() {
-  const [modelPath, setModelPath] = useState(
-    '/data/local/tmp/DeepFilterNet3_onnx.tar.gz'
-  );
   const [audioPath, setAudioPath] = useState('/data/local/tmp/noisy_snr0.wav');
   const [isInitialized, setIsInitialized] = useState(false);
   const [hopSize, setHopSize] = useState<number | null>(null);
@@ -174,21 +174,29 @@ export default function App() {
     handlePlayAudioBuffer(noisyAudioBuffer, 'Raw Noisy Audio');
   };
 
-  const handlePickModelFile = async () => {
+  const handleFetchLatestModel = async () => {
     try {
-      const results = await pick({
-        type: [types.allFiles],
-      });
-      const res = results[0];
-      if (res?.uri) {
-        const cleanPath = decodeURIComponent(res.uri.replace('file://', ''));
-        setModelPath(cleanPath);
-        addLog(`📁 Model file selected: ${res.name || cleanPath}`);
+      addLog('Fetching latest model from GitHub Release CDN...');
+      const ok = await loadDefaultModel(attenLim);
+      if (ok) {
+        setIsInitialized(true);
+        const frameLen = ReactNativeDeepFilterNet.getFrameLength();
+        setHopSize(frameLen);
+        addLog(
+          `Latest GitHub model loaded successfully! Hop size: ${frameLen} samples`
+        );
+        Alert.alert(
+          'Success',
+          'Latest DeepFilterNet model downloaded and initialized!'
+        );
+      } else {
+        setIsInitialized(false);
+        setHopSize(null);
+        addLog('Failed to initialize downloaded model.');
       }
-    } catch (err) {
-      if (!isCancel(err)) {
-        addLog(`Picker error: ${err}`);
-      }
+    } catch (e: any) {
+      addLog(`Model download error: ${e.message}`);
+      Alert.alert('Download Error', e.message);
     }
   };
 
@@ -207,30 +215,6 @@ export default function App() {
       if (!isCancel(err)) {
         addLog(`Picker error: ${err}`);
       }
-    }
-  };
-
-  const handleInitModel = () => {
-    try {
-      addLog(`Initializing model from: ${modelPath}...`);
-      const success = ReactNativeDeepFilterNet.initModel(modelPath, attenLim);
-      if (success) {
-        setIsInitialized(true);
-        const frameLen = ReactNativeDeepFilterNet.getFrameLength();
-        setHopSize(frameLen);
-        addLog(`Model initialized successfully! Hop size: ${frameLen} samples`);
-      } else {
-        setIsInitialized(false);
-        setHopSize(null);
-        addLog('Failed to initialize model. Ensure model file exists.');
-        Alert.alert(
-          'Error',
-          'Could not initialize DeepFilterNet model. Ensure model file exists.'
-        );
-      }
-    } catch (e: any) {
-      addLog(`Error: ${e.message}`);
-      Alert.alert('Error', e.message);
     }
   };
 
@@ -346,30 +330,12 @@ export default function App() {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>1. Model Configuration</Text>
-          <Text style={styles.label}>Model File Path (.tar.gz / ONNX):</Text>
-          <TextInput
-            style={styles.input}
-            value={modelPath}
-            onChangeText={setModelPath}
-            placeholder="/path/to/DeepFilterNet3_onnx.tar.gz"
-            placeholderTextColor="#64748B"
-          />
-
-          <TouchableOpacity
-            style={[styles.button, styles.secondaryButton, styles.mb10]}
-            onPress={handlePickModelFile}
-          >
-            <Text style={styles.buttonText}>
-              📁 Pick Model File (Cihazdan Seç)
-            </Text>
-          </TouchableOpacity>
-
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={[styles.button, styles.primaryButton]}
-              onPress={handleInitModel}
+              onPress={handleFetchLatestModel}
             >
-              <Text style={styles.buttonText}>Initialize Model</Text>
+              <Text style={styles.buttonText}>🌐 Load Model</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

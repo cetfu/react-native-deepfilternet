@@ -41,6 +41,16 @@ void ReactNativeDeepFilterNet::setAttenLim(double limDb) {
   }
 }
 
+bool ReactNativeDeepFilterNet::writeBufferToFile(const std::string& path,
+                                                 const std::shared_ptr<ArrayBuffer>& buffer) {
+  if (!buffer || buffer->size() == 0) return false;
+  std::ofstream outFile(path, std::ios::binary);
+  if (!outFile.is_open()) return false;
+  outFile.write(reinterpret_cast<const char*>(buffer->data()), buffer->size());
+  outFile.close();
+  return true;
+}
+
 void ReactNativeDeepFilterNet::release() {
   if (_state) {
     df_free(_state);

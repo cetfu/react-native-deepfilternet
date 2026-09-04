@@ -17,6 +17,8 @@ public:
   double processFrame(const std::shared_ptr<ArrayBuffer>& inputFrame,
                       const std::shared_ptr<ArrayBuffer>& outputFrame) override;
   void setAttenLim(double limDb) override;
+  bool writeBufferToFile(const std::string& path,
+                         const std::shared_ptr<ArrayBuffer>& buffer) override;
   void release() override;
 
 private:
