@@ -20,93 +20,9 @@ import { AudioContext } from 'react-native-audio-api';
 import {
   ReactNativeDeepFilterNet,
   loadDefaultModel,
+  wavBufferToFloat32,
+  filterAudioBuffer,
 } from 'react-native-deepfilternet';
-
-function parseWavOrPcmToFloat32(arrayBuffer: ArrayBuffer): {
-  samples: Float32Array;
-  sampleRate: number;
-} {
-  const dataView = new DataView(arrayBuffer);
-
-  if (
-    arrayBuffer.byteLength > 44 &&
-    dataView.getUint8(0) === 0x52 && // 'R'
-    dataView.getUint8(1) === 0x49 && // 'I'
-    dataView.getUint8(2) === 0x46 && // 'F'
-    dataView.getUint8(3) === 0x46 // 'F'
-  ) {
-    const channels = dataView.getUint16(22, true) || 1;
-    const sampleRate = dataView.getUint32(24, true) || 48000;
-    const bitsPerSample = dataView.getUint16(34, true) || 16;
-
-    let dataOffset = 36;
-    while (dataOffset < arrayBuffer.byteLength - 8) {
-      const chunkId =
-        String.fromCharCode(dataView.getUint8(dataOffset)) +
-        String.fromCharCode(dataView.getUint8(dataOffset + 1)) +
-        String.fromCharCode(dataView.getUint8(dataOffset + 2)) +
-        String.fromCharCode(dataView.getUint8(dataOffset + 3));
-      const chunkSize = dataView.getUint32(dataOffset + 4, true);
-      if (chunkId === 'data') {
-        dataOffset += 8;
-        break;
-      }
-      dataOffset += 8 + chunkSize;
-    }
-
-    if (dataOffset >= arrayBuffer.byteLength) {
-      dataOffset = 44;
-    }
-
-    const pcmByteLength = arrayBuffer.byteLength - dataOffset;
-
-    if (bitsPerSample === 16) {
-      const numSamples = Math.floor(pcmByteLength / 2 / channels);
-      const floatSamples = new Float32Array(numSamples);
-      const int16Array = new Int16Array(
-        arrayBuffer,
-        dataOffset,
-        numSamples * channels
-      );
-      for (let i = 0; i < numSamples; i++) {
-        if (channels === 2) {
-          const s1 = int16Array[i * 2] ?? 0;
-          const s2 = int16Array[i * 2 + 1] ?? 0;
-          floatSamples[i] = (s1 + s2) / 65536.0;
-        } else {
-          floatSamples[i] = (int16Array[i] ?? 0) / 32768.0;
-        }
-      }
-      return { samples: floatSamples, sampleRate };
-    } else if (bitsPerSample === 32) {
-      const numSamples = Math.floor(pcmByteLength / 4 / channels);
-      const floatSamples = new Float32Array(numSamples);
-      const float32Array = new Float32Array(
-        arrayBuffer,
-        dataOffset,
-        numSamples * channels
-      );
-      for (let i = 0; i < numSamples; i++) {
-        if (channels === 2) {
-          const s1 = float32Array[i * 2] ?? 0;
-          const s2 = float32Array[i * 2 + 1] ?? 0;
-          floatSamples[i] = (s1 + s2) / 2.0;
-        } else {
-          floatSamples[i] = float32Array[i] ?? 0;
-        }
-      }
-      return { samples: floatSamples, sampleRate };
-    }
-  }
-
-  const numSamples = Math.floor(arrayBuffer.byteLength / 2);
-  const int16Array = new Int16Array(arrayBuffer);
-  const floatSamples = new Float32Array(numSamples);
-  for (let i = 0; i < numSamples; i++) {
-    floatSamples[i] = (int16Array[i] ?? 0) / 32768.0;
-  }
-  return { samples: floatSamples, sampleRate: 48000 };
-}
 
 export default function App() {
   const [audioPath, setAudioPath] = useState('/data/local/tmp/noisy_snr0.wav');
@@ -239,7 +155,7 @@ export default function App() {
       const arrayBuffer = await res.arrayBuffer();
 
       const { samples: noisySamples, sampleRate } =
-        parseWavOrPcmToFloat32(arrayBuffer);
+        wavBufferToFloat32(arrayBuffer);
       const durationSec = (noisySamples.length / sampleRate).toFixed(2);
       addLog(
         `Loaded ${noisySamples.length} samples (${durationSec}s at ${sampleRate}Hz) from audio file.`
@@ -247,42 +163,21 @@ export default function App() {
 
       setNoisyAudioBuffer(noisySamples);
 
-      const numFrames = Math.floor(noisySamples.length / hopSize);
-      const cleanSamples = new Float32Array(numFrames * hopSize);
-
-      const inputFrame = new Float32Array(hopSize);
-      const outputFrame = new Float32Array(hopSize);
-
       const start = performance.now();
-      let totalSnr = 0;
-
-      for (let f = 0; f < numFrames; f++) {
-        const offset = f * hopSize;
-        inputFrame.set(noisySamples.subarray(offset, offset + hopSize));
-
-        const snr = ReactNativeDeepFilterNet.processFrame(
-          inputFrame.buffer,
-          outputFrame.buffer
-        );
-        totalSnr += snr;
-
-        cleanSamples.set(outputFrame, offset);
-      }
-
+      const { cleanedSamples, averageSnr } = filterAudioBuffer(noisySamples);
       const duration = performance.now() - start;
-      const avgSnr = totalSnr / numFrames;
 
-      setLastSnr(avgSnr);
+      setLastSnr(averageSnr);
       setProcessTimeMs(duration);
-      setCleanedAudioBuffer(cleanSamples);
+      setCleanedAudioBuffer(cleanedSamples);
 
       addLog(
-        `⚡ Filtered entire audio file (${durationSec}s, ${numFrames} frames) in ${duration.toFixed(
+        `⚡ Filtered entire audio file (${durationSec}s) in ${duration.toFixed(
           1
-        )}ms! Avg SNR: ${avgSnr.toFixed(2)} dB`
+        )}ms! Avg SNR: ${averageSnr.toFixed(2)} dB`
       );
 
-      await handlePlayAudioBuffer(cleanSamples, 'Cleaned Audio File');
+      await handlePlayAudioBuffer(cleanedSamples, 'Cleaned Audio File');
     } catch (e: any) {
       addLog(`File filtering error: ${e.message}`);
       Alert.alert('Error filtering file', e.message);

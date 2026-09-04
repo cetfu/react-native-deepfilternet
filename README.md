@@ -37,39 +37,29 @@ const isLoaded = await loadDefaultModel(100); // 100 dB max attenuation limit
 
 ### 2. Filtering a Complete Audio File / PCM Buffer
 
-To noise-suppress an entire audio track (e.g. 48kHz mono Float32 PCM audio buffer), process it chunk-by-chunk using `frameLength` (hop size):
+`react-native-deepfilternet` exports built-in audio helpers so you can easily load WAV files and noise-suppress an entire audio track with a single function call:
 
 ```typescript
-// Get the required frame size in samples (e.g. 480 samples at 48kHz = 10ms frame)
-const frameLength = ReactNativeDeepFilterNet.getFrameLength();
+import {
+  loadDefaultModel,
+  wavBufferToFloat32,
+  filterAudioBuffer,
+} from 'react-native-deepfilternet';
 
-// Your raw noisy 48kHz mono Float32 PCM audio data
-const noisyPcmData: Float32Array = getAudioSamples(); 
+// 1. Initialize model
+await loadDefaultModel(100);
 
-const numFrames = Math.floor(noisyPcmData.length / frameLength);
-const cleanedPcmData = new Float32Array(numFrames * frameLength);
+// 2. Read your audio file as ArrayBuffer
+const response = await fetch('file:///path/to/noisy_audio.wav');
+const wavArrayBuffer = await response.arrayBuffer();
 
-// Reusable zero-copy frame buffers
-const inputFrame = new Float32Array(frameLength);
-const outputFrame = new Float32Array(frameLength);
+// 3. Convert WAV ArrayBuffer into 48kHz Float32 PCM samples (built-in helper)
+const { samples: noisyPcmData, sampleRate } = wavBufferToFloat32(wavArrayBuffer);
 
-for (let i = 0; i < numFrames; i++) {
-  const offset = i * frameLength;
-  
-  // Fill input frame
-  inputFrame.set(noisyPcmData.subarray(offset, offset + frameLength));
+// 4. Filter the entire audio track in one call (built-in helper)
+const { cleanedSamples, averageSnr } = filterAudioBuffer(noisyPcmData);
 
-  // Process frame (Zero-Copy ArrayBuffer)
-  const localSnr = ReactNativeDeepFilterNet.processFrame(
-    inputFrame.buffer,
-    outputFrame.buffer
-  );
-
-  // Copy cleaned audio frame to output buffer
-  cleanedPcmData.set(outputFrame, offset);
-}
-
-// cleanedPcmData now contains the noise-suppressed 48kHz audio!
+// cleanedSamples now holds the noise-suppressed 48kHz Float32 PCM audio!
 ```
 
 ### 3. Real-Time Streaming (Microphone / WebRTC)
