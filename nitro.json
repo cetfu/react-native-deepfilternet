@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["deepfilternet"],
+  "ios": {
+    "iosModuleName": "ReactNativeDeepFilterNet"
+  },
+  "android": {
+    "androidNamespace": ["deepfilternet"],
+    "androidCxxLibName": "deepfilternet"
+  },
+  "autolinking": {
+    "ReactNativeDeepFilterNet": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "ReactNativeDeepFilterNet"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "ReactNativeDeepFilterNet"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
