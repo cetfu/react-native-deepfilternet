@@ -53,7 +53,7 @@
     "url": "git+https://github.com/cetfu/react-native-deepfilternet.git"
   },
   "author": "Furkan ÇETİNKAYA <furkancetinkaya0746@gmail.com> (https://github.com/cetfu)",
-  "license": "MIT",
+  "license": "(MIT OR Apache-2.0)",
   "bugs": {
     "url": "https://github.com/cetfu/react-native-deepfilternet/issues"
   },
