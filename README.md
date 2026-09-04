@@ -17,10 +17,20 @@ npm install react-native-deepfilternet react-native-nitro-modules
 ## Usage
 
 ```typescript
-import { ReactNativeDeepFilterNet } from 'react-native-deepfilternet';
+import {
+  ReactNativeDeepFilterNet,
+  loadDefaultModel,
+  loadModelFromUrl,
+} from 'react-native-deepfilternet';
 
-// 1. Initialize DeepFilterNet model (.tar.gz / ONNX model path & max attenuation limit)
-const isLoaded = ReactNativeDeepFilterNet.initModel('/path/to/DeepFilterNet3_onnx.tar.gz', 100);
+// 1. Download & initialize latest DeepFilterNet3 model from GitHub Releases (Recommended)
+const isLoaded = await loadDefaultModel(100); // 100 dB max attenuation limit
+
+// Or load from a custom remote URL:
+// await loadModelFromUrl('https://example.com/custom_model.tar.gz');
+
+// Or initialize directly from a local file path:
+// ReactNativeDeepFilterNet.initModel('/path/to/DeepFilterNet3_onnx.tar.gz', 100);
 
 // 2. Get frame size in samples (hop size)
 const frameLength = ReactNativeDeepFilterNet.getFrameLength(); // e.g. 480 samples
