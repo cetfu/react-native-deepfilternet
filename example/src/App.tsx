@@ -360,7 +360,11 @@ export default function App() {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Activity Logs</Text>
-          <View style={styles.logBox}>
+          <ScrollView
+            style={styles.logBox}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator
+          >
             {logMessages.length === 0 ? (
               <Text style={styles.logPlaceholder}>No activity logged yet.</Text>
             ) : (
@@ -370,7 +374,7 @@ export default function App() {
                 </Text>
               ))
             )}
-          </View>
+          </ScrollView>
         </View>
       </ScrollView>
     </SafeAreaView>
