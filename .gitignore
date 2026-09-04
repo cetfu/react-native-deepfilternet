@@ -84,3 +84,12 @@ android/generated
 
 # React Native Nitro Modules
 nitrogen/
+
+# Build & Cache Directories
+.build/
+.cache/
+
+# IDE & Language Server Local Configs
+.clangd
+.zed/
+compile_commands.json

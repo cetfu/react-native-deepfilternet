@@ -16,7 +16,12 @@ class ReactNativeDeepFilterNetPackage : BaseReactPackage() {
 
     companion object {
         init {
-            System.loadLibrary("deepfilternet")
+            try {
+                System.loadLibrary("df")
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+            deepfilternetOnLoad.initializeNative()
         }
     }
 }

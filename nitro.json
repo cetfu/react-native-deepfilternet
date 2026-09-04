@@ -9,12 +9,8 @@
   },
   "autolinking": {
     "ReactNativeDeepFilterNet": {
-      "ios": {
-        "language": "swift",
-        "implementationClassName": "ReactNativeDeepFilterNet"
-      },
-      "android": {
-        "language": "kotlin",
+      "all": {
+        "language": "c++",
         "implementationClassName": "ReactNativeDeepFilterNet"
       }
     }
