@@ -9707,9 +9707,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-deep-filter-net-example@workspace:example":
+"react-native-deepfilternet-example@workspace:example":
   version: 0.0.0-use.local
-  resolution: "react-native-deep-filter-net-example@workspace:example"
+  resolution: "react-native-deepfilternet-example@workspace:example"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
@@ -9735,9 +9735,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"react-native-deep-filter-net@workspace:.":
+"react-native-deepfilternet@workspace:.":
   version: 0.0.0-use.local
-  resolution: "react-native-deep-filter-net@workspace:."
+  resolution: "react-native-deepfilternet@workspace:."
   dependencies:
     "@commitlint/config-conventional": "npm:^21.0.2"
     "@eslint/compat": "npm:^2.1.0"

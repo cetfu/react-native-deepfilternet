@@ -1,4 +1,4 @@
-# react-native-deep-filter-net
+# react-native-deepfilternet
 
 High-Performance Real-Time Audio Noise Suppression for React Native powered by [DeepFilterNet](https://github.com/rikorose/deepfilternet) and [Nitro Modules](https://nitro.margelo.com/).
 
@@ -11,13 +11,13 @@ High-Performance Real-Time Audio Noise Suppression for React Native powered by [
 ## Installation
 
 ```sh
-npm install react-native-deep-filter-net react-native-nitro-modules
+npm install react-native-deepfilternet react-native-nitro-modules
 ```
 
 ## Usage
 
 ```typescript
-import { ReactNativeDeepFilterNet } from 'react-native-deep-filter-net';
+import { ReactNativeDeepFilterNet } from 'react-native-deepfilternet';
 
 // 1. Initialize DeepFilterNet model (.tar.gz / ONNX model path & max attenuation limit)
 const isLoaded = ReactNativeDeepFilterNet.initModel('/path/to/DeepFilterNet3_onnx.tar.gz', 100);

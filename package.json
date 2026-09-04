@@ -1,12 +1,12 @@
 {
-  "name": "react-native-deep-filter-net",
+  "name": "react-native-deepfilternet",
   "version": "0.1.0",
   "description": "React Native DeepFilterNet API",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
     ".": {
-      "react-native-deep-filter-net-source": "./src/index.tsx",
+      "react-native-deepfilternet-source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
@@ -34,7 +34,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-deep-filter-net-example",
+    "example": "yarn workspace react-native-deepfilternet-example",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
     "nitrogen": "nitrogen",
@@ -50,14 +50,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cetfu/react-native-deep-filter-net.git"
+    "url": "git+https://github.com/cetfu/react-native-deepfilternet.git"
   },
   "author": "Furkan ÇETİNKAYA <furkancetinkaya0746@gmail.com> (https://github.com/cetfu)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cetfu/react-native-deep-filter-net/issues"
+    "url": "https://github.com/cetfu/react-native-deepfilternet/issues"
   },
-  "homepage": "https://github.com/cetfu/react-native-deep-filter-net#readme",
+  "homepage": "https://github.com/cetfu/react-native-deepfilternet#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

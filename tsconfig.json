@@ -2,12 +2,12 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-deep-filter-net": ["./src/index"]
+      "react-native-deepfilternet": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "customConditions": [
-      "react-native-deep-filter-net-source",
+      "react-native-deepfilternet-source",
       "react-native-strict-api"
     ],
     "esModuleInterop": true,

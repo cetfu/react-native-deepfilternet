@@ -20,7 +20,7 @@ import { AudioContext } from 'react-native-audio-api';
 import {
   ReactNativeDeepFilterNet,
   loadDefaultModel,
-} from 'react-native-deep-filter-net';
+} from 'react-native-deepfilternet';
 
 function parseWavOrPcmToFloat32(arrayBuffer: ArrayBuffer): {
   samples: Float32Array;

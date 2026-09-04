@@ -25,7 +25,7 @@ export const ReactNativeDeepFilterNet: ReactNativeDeepFilterNetSpec = new Proxy(
 );
 
 export const LATEST_MODEL_URL =
-  'https://github.com/cetfu/react-native-deep-filter-net/releases/latest/download/DeepFilterNet3_onnx.tar.gz';
+  'https://github.com/cetfu/react-native-deepfilternet/releases/latest/download/DeepFilterNet3_onnx.tar.gz';
 
 /**
  * Downloads and caches a DeepFilterNet model from a remote URL, then initializes the engine.
