@@ -19,6 +19,7 @@ public:
   void setAttenLim(double limDb) override;
   bool writeBufferToFile(const std::string& path,
                          const std::shared_ptr<ArrayBuffer>& buffer) override;
+  std::string getModelCacheDirectory() override;
   void release() override;
 
 private:

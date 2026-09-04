@@ -1,5 +1,8 @@
 #include "ReactNativeDeepFilterNet.hpp"
 #include <fstream>
+#include <filesystem>
+#include <cstdlib>
+#include <cstring>
 
 namespace margelo::nitro::deepfilternet {
 
@@ -44,11 +47,45 @@ void ReactNativeDeepFilterNet::setAttenLim(double limDb) {
 bool ReactNativeDeepFilterNet::writeBufferToFile(const std::string& path,
                                                  const std::shared_ptr<ArrayBuffer>& buffer) {
   if (!buffer || buffer->size() == 0) return false;
+
+  try {
+    std::filesystem::path p(path);
+    if (p.has_parent_path()) {
+      std::filesystem::create_directories(p.parent_path());
+    }
+  } catch (...) {
+    // Ignore if directory already exists
+  }
+
   std::ofstream outFile(path, std::ios::binary);
   if (!outFile.is_open()) return false;
   outFile.write(reinterpret_cast<const char*>(buffer->data()), buffer->size());
   outFile.close();
   return true;
+}
+
+std::string ReactNativeDeepFilterNet::getModelCacheDirectory() {
+#if defined(__APPLE__)
+  const char* tmp = getenv("TMPDIR");
+  if (tmp && strlen(tmp) > 0) return std::string(tmp);
+  return "/tmp";
+#elif defined(__ANDROID__)
+  const char* tmp = getenv("TMPDIR");
+  if (tmp && strlen(tmp) > 0) return std::string(tmp);
+
+  std::ifstream cmdline("/proc/self/cmdline");
+  if (cmdline.is_open()) {
+    std::string packageName;
+    std::getline(cmdline, packageName, '\0');
+    cmdline.close();
+    if (!packageName.empty()) {
+      return "/data/user/0/" + packageName + "/cache";
+    }
+  }
+  return "/data/local/tmp";
+#else
+  return "/tmp";
+#endif
 }
 
 void ReactNativeDeepFilterNet::release() {

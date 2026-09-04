@@ -30,14 +30,17 @@ export const LATEST_MODEL_URL =
 /**
  * Downloads and caches a DeepFilterNet model from a remote URL, then initializes the engine.
  * @param url Remote URL of the model (.tar.gz / ONNX)
- * @param localSavePath Local file path to save and cache the model (defaults to /data/local/tmp/latest_model.tar.gz)
+ * @param localSavePath Local file path to save and cache the model (defaults to app cache directory)
  * @param attenLim Max noise attenuation limit in dB (defaults to 100 dB)
  */
 export async function loadModelFromUrl(
   url: string = LATEST_MODEL_URL,
-  localSavePath: string = '/data/local/tmp/latest_model.tar.gz',
+  localSavePath?: string,
   attenLim: number = 100
 ): Promise<boolean> {
+  const cacheDir = ReactNativeDeepFilterNet.getModelCacheDirectory();
+  const targetPath = localSavePath || `${cacheDir}/latest_model.tar.gz`;
+
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(
@@ -46,27 +49,23 @@ export async function loadModelFromUrl(
   }
   const arrayBuffer = await res.arrayBuffer();
   const saved = ReactNativeDeepFilterNet.writeBufferToFile(
-    localSavePath,
+    targetPath,
     arrayBuffer
   );
   if (!saved) {
-    throw new Error(`Failed to save model binary to ${localSavePath}`);
+    throw new Error(`Failed to save model binary to ${targetPath}`);
   }
-  return ReactNativeDeepFilterNet.initModel(localSavePath, attenLim);
+  return ReactNativeDeepFilterNet.initModel(targetPath, attenLim);
 }
 
 /**
  * Automatically fetches the latest official DeepFilterNet3 model from GitHub Releases,
- * caches it locally, and initializes the native engine.
+ * caches it in the app's cache directory, and initializes the native engine.
  */
 export async function loadDefaultModel(
   attenLim: number = 100
 ): Promise<boolean> {
-  return loadModelFromUrl(
-    LATEST_MODEL_URL,
-    '/data/local/tmp/latest_model.tar.gz',
-    attenLim
-  );
+  return loadModelFromUrl(LATEST_MODEL_URL, undefined, attenLim);
 }
 
 /**

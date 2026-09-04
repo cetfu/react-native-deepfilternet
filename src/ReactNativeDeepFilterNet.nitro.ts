@@ -30,6 +30,11 @@ export interface ReactNativeDeepFilterNet extends HybridObject<{
   writeBufferToFile(path: string, buffer: ArrayBuffer): boolean;
 
   /**
+   * Get app cache directory path for saving model binaries safely.
+   */
+  getModelCacheDirectory(): string;
+
+  /**
    * Release model and free native memory.
    */
   release(): void;
